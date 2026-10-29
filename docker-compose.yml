@@ -1,0 +1,55 @@
+services:
+  influxdb:
+    image: influxdb:1.11-alpine
+    restart: unless-stopped
+    environment:
+      INFLUXDB_DB: k6
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+    ports:
+      - "8086:8086"
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    depends_on: [influxdb]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+
+  k6:
+    image: grafana/k6:latest
+    profiles: [tools]
+    depends_on: [influxdb]
+    environment:
+      BASE_URL: ${BASE_URL:-http://api:8000}
+      VUS: ${VUS:-5}
+      DURATION: ${DURATION:-30s}
+    volumes:
+      - ./k6:/scripts:ro
+    entrypoint: ["k6"]
+
+  api-python:
+    build: ./services/python
+    ports:
+      - "8001:8000"
+
+  api-go:
+    build: ./services/go
+    ports:
+      - "8002:8000"
+
+  api-java:
+    build: ./services/java
+    ports:
+      - "8003:8080"
+
+volumes:
+  influxdb-data:
+  grafana-data:
