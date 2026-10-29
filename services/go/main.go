@@ -18,7 +18,7 @@ func fibonacci(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-  http.HandleFunc("/health", func(w http.ResponseWriter) { w.Write([]byte(`{"status":"ok"}`)) })
+  http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte(`{"status":"ok"}`)) })
   http.HandleFunc("/fibonacci/", fibonacci)
   http.ListenAndServe(":8000", nil)
 }
