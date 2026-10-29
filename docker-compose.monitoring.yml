@@ -8,12 +8,11 @@ services:
       - influxdb-data:/var/lib/influxdb
     ports:
       - "8086:8086"
-    networks: [benchmark-net]
 
   grafana:
     image: grafana/grafana:latest
     restart: unless-stopped
-    depends_on: [influxdb]
+    depends_on: [ influxdb ]
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
@@ -23,12 +22,8 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
       - "3000:3000"
-    networks: [benchmark-net]
 
 volumes:
   influxdb-data:
   grafana-data:
 
-networks:
-  benchmark-net:
-    name: benchmark-net

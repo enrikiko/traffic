@@ -9,7 +9,7 @@ services:
     volumes:
       - ./k6:/scripts:ro
     entrypoint: [ "k6" ]
-    networks: [benchmark-net]
+
 
   api-python:
     build: ./services/python
@@ -24,21 +24,16 @@ services:
       UVICORN_RELOAD: ${PYTHON_UVICORN_RELOAD:-false}
     ports:
       - "8001:8000"
-    networks: [benchmark-net]
+
 
   api-go:
     build: ./services/go
     ports:
       - "8002:8000"
-    networks: [benchmark-net]
+
 
   api-java:
     build: ./services/java
     ports:
       - "8003:8080"
-    networks: [benchmark-net]
 
-networks:
-  benchmark-net:
-    external: true
-    name: benchmark-net
