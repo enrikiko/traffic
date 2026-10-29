@@ -33,7 +33,7 @@ Raspberry Pi OS 64-bit is recommended. Install Docker and the Compose plugin,
 then run:
 
 ```bash
-docker compose up -d influxdb grafana
+docker compose -f docker-compose.monitoring.yml up -d
 ```
 
 Open Grafana at `http://<raspberry-pi-ip>:3000`. The default local login is
@@ -109,14 +109,15 @@ Raspberry Pi OS 64-bit is recommended. Install Docker and Compose, copy
 `.env.example` to `.env`, change the Grafana password, and run:
 
 ```bash
-docker compose up -d influxdb grafana
+docker compose -f docker-compose.monitoring.yml up -d
 ```
 
 Open Grafana at `http://<raspberry-pi-ip>:3000`.
 
-Start one API implementation on the Compose network, then run:
+Start the API services with the main Compose file, then run k6:
 
 ```bash
+docker compose up -d --build
 docker compose --profile tools run --rm k6 run \
   --out influxdb=http://influxdb:8086/k6 \
   -e BASE_URL=http://api-python:8000 /scripts/fibonacci.js
