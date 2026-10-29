@@ -37,6 +37,15 @@ services:
 
   api-python:
     build: ./services/python
+    environment:
+      UVICORN_HOST: ${PYTHON_UVICORN_HOST:-0.0.0.0}
+      UVICORN_PORT: ${PYTHON_UVICORN_PORT:-8000}
+      UVICORN_WORKERS: ${PYTHON_UVICORN_WORKERS:-1}
+      UVICORN_LOOP: ${PYTHON_UVICORN_LOOP:-auto}
+      UVICORN_HTTP: ${PYTHON_UVICORN_HTTP:-auto}
+      UVICORN_LOG_LEVEL: ${PYTHON_UVICORN_LOG_LEVEL:-warning}
+      UVICORN_ACCESS_LOG: ${PYTHON_UVICORN_ACCESS_LOG:-false}
+      UVICORN_RELOAD: ${PYTHON_UVICORN_RELOAD:-false}
     ports:
       - "8001:8000"
 

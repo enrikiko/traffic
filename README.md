@@ -129,6 +129,27 @@ service while all three remain available.
 The services are implemented with FastAPI/Uvicorn, Go's standard `net/http`,
 and Spring Boot. Their source and Dockerfiles are under `services/`.
 
+### Tuning Uvicorn
+
+Python settings are in `services/python/uvicorn_config.py` and can be changed
+through `.env`, for example:
+
+```text
+PYTHON_UVICORN_WORKERS=1
+PYTHON_UVICORN_LOOP=auto
+PYTHON_UVICORN_HTTP=auto
+PYTHON_UVICORN_LOG_LEVEL=warning
+PYTHON_UVICORN_ACCESS_LOG=false
+PYTHON_UVICORN_RELOAD=false
+```
+
+Use one worker and reload disabled for comparable benchmark runs. Rebuild or
+restart the Python container after changing these values:
+
+```bash
+docker compose up -d --build api-python
+```
+
 Use `BASE_URL`, `VUS`, and `DURATION` to select the target and load. The
 default test is intentionally modest for a Raspberry Pi.
 
