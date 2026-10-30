@@ -2,7 +2,7 @@
  # Fibonacci API benchmark
 
 Benchmark the same HTTP API implemented in different runtimes (Python, Java,
-Go, and optionally Rust or Node.js) using k6 on a Raspberry Pi.
+Go, and Rust) using k6 on a Raspberry Pi.
 
 ## Architecture
 
@@ -33,12 +33,16 @@ Raspberry Pi OS 64-bit is recommended. Install Docker and the Compose plugin,
 then run:
 
 ```bash
-docker compose -f docker-compose.monitoring.yml up -d
+docker compose up -d influxdb grafana
 ```
 
 Open Grafana at `http://<raspberry-pi-ip>:3000`. The default local login is
 `admin` / `admin`; change it immediately with `GF_SECURITY_ADMIN_PASSWORD` in
 `.env` before exposing the Pi outside your LAN.
+
+Grafana automatically imports the k6 Load Test Dashboard for InfluxDB 1.x
+(dashboard ID `24720`) into the `k6` folder. Run at least one k6 test, then
+open the dashboard to view latency, RPS, errors, iterations, and virtual users.
 
 ## Run a benchmark
 
@@ -54,6 +58,7 @@ The APIs are available from the Raspberry Pi at:
 Python: http://<raspberry-pi-ip>:8001
 Go:     http://<raspberry-pi-ip>:8002
 Java:   http://<raspberry-pi-ip>:8003
+Rust:   http://<raspberry-pi-ip>:8004
 ```
 
 From the k6 container, use the Compose service names instead:
@@ -72,6 +77,9 @@ if your Docker version does not provide that hostname automatically.
 Change `BASE_URL`, `VUS`, and `DURATION` through environment variables. The
 default test is intentionally modest for a Raspberry Pi; increase load only
 after checking CPU temperature and throttling.
+
+Inside Compose, k6 sends metrics to `http://influxdb:8086/k6`. From outside
+Docker, InfluxDB is available at `http://<raspberry-pi-ip>:8086`.
 
 ## Fair comparison rules
 
@@ -123,12 +131,12 @@ docker compose --profile tools run --rm k6 run \
   -e BASE_URL=http://api-python:8000 /scripts/fibonacci.js
 ```
 
-Use `http://api-python:8000`, `http://api-go:8000`, or
-`http://api-java:8080` as `BASE_URL` from k6. Run separate tests against each
+Use `http://api-python:8000`, `http://api-go:8000`, `http://api-java:8080`, or
+`http://api-rust:8000` as `BASE_URL` from k6. Run separate tests against each
 service while all three remain available.
 
 The services are implemented with FastAPI/Uvicorn, Go's standard `net/http`,
-and Spring Boot. Their source and Dockerfiles are under `services/`.
+Spring Boot, and Rust/Axum. Their source and Dockerfiles are under `services/`.
 
 ### Tuning Uvicorn
 
@@ -153,6 +161,20 @@ docker compose up -d --build api-python
 
 Use `BASE_URL`, `VUS`, and `DURATION` to select the target and load. The
 default test is intentionally modest for a Raspberry Pi.
+
+For repeatable Go and Java runs, use the helper script:
+
+```bash
+chmod +x k6.sh
+bash k6.sh go 10 30s
+bash k6.sh java 10 30s
+```
+
+Run both sequentially:
+
+```bash
+bash k6.sh all 20 60s
+```
 
 ## Fair comparison
 

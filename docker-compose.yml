@@ -37,3 +37,9 @@ services:
     ports:
       - "8003:8080"
 
+  api-rust:
+    build: ./services/rust
+    ports:
+      - "8004:8000"
+
+
